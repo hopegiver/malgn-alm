@@ -81,12 +81,10 @@ export default {
         async loadData() {
             this.loading = true;
             try {
-                const response = await this.$api.get('/api/portfolio/roi');
-                this.items = response.data;
-            } catch (error) {
-                console.error('API 호출 실패, mock 데이터 로드:', error);
                 const res = await fetch('/mock-api/portfolio/roi.json');
                 this.items = await res.json();
+            } catch (error) {
+                console.error('데이터 로드 실패:', error);
             } finally {
                 this.loading = false;
             }
