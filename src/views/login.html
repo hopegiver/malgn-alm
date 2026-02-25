@@ -1,0 +1,115 @@
+<div class="d-flex align-items-center justify-content-center min-vh-100 bg-light">
+    <div class="card border-0 shadow-lg" style="width: 100%; max-width: 420px;">
+        <div class="card-body p-5">
+            <!-- 로고 -->
+            <div class="text-center mb-4">
+                <div class="mb-3">
+                    <i class="bi bi-play-btn-fill text-primary" style="font-size: 4rem;"></i>
+                </div>
+                <h3 class="fw-bold mb-2">맑은소프트</h3>
+                <p class="text-secondary mb-0">관리자 콘솔</p>
+            </div>
+
+            <!-- 로그인 폼 -->
+            <form @submit.prevent="handleLogin">
+                <!-- 이메일 -->
+                <div class="mb-3">
+                    <label class="form-label fw-medium">이메일</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white">
+                            <i class="bi bi-envelope"></i>
+                        </span>
+                        <input
+                            type="email"
+                            class="form-control"
+                            placeholder="admin@videopack.com"
+                            v-model="email"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <!-- 비밀번호 -->
+                <div class="mb-3">
+                    <label class="form-label fw-medium">비밀번호</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white">
+                            <i class="bi bi-lock"></i>
+                        </span>
+                        <input
+                            :type="showPassword ? 'text' : 'password'"
+                            class="form-control"
+                            placeholder="비밀번호를 입력하세요"
+                            v-model="password"
+                            required
+                        >
+                        <button
+                            type="button"
+                            class="btn btn-outline-secondary"
+                            @click="showPassword = !showPassword"
+                        >
+                            <i :class="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 기억하기 -->
+                <div class="form-check mb-3">
+                    <input type="checkbox" class="form-check-input" id="rememberMe" v-model="rememberMe">
+                    <label class="form-check-label" for="rememberMe">
+                        로그인 상태 유지
+                    </label>
+                </div>
+
+                <!-- 에러 메시지 -->
+                <div v-if="errorMessage" class="alert alert-danger d-flex align-items-center mb-3">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <div>{{ errorMessage }}</div>
+                </div>
+
+                <!-- 로그인 버튼 -->
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-medium" :disabled="loading">
+                    <span v-if="loading">
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                        로그인 중...
+                    </span>
+                    <span v-else>
+                        로그인
+                    </span>
+                </button>
+            </form>
+
+            <!-- 하단 링크 -->
+            <div class="text-center mt-4">
+                <a href="#" class="text-decoration-none text-secondary small">
+                    비밀번호를 잊으셨나요?
+                </a>
+            </div>
+        </div>
+
+        <!-- 카드 푸터 -->
+        <div class="card-footer bg-light text-center py-3">
+            <small class="text-secondary">
+                &copy; 2026 Malgnsoft. All rights reserved.
+            </small>
+        </div>
+    </div>
+</div>
+
+<style>
+.divider {
+    position: relative;
+    text-align: center;
+    border-top: 1px solid #e5e7eb;
+}
+
+.divider span {
+    position: relative;
+    top: -0.75rem;
+    padding: 0 1rem;
+}
+
+.min-vh-100 {
+    min-height: 100vh;
+}
+</style>

@@ -1,0 +1,67 @@
+[
+    {
+        "id": 1,
+        "project": "ALM 시스템",
+        "period": "2025",
+        "investmentCost": 300000000,
+        "operatingCost": 50000000,
+        "expectedRevenue": 600000000,
+        "actualRevenue": 180000000,
+        "costSaving": 120000000,
+        "status": "tracking",
+        "owner": "김전략",
+        "notes": "개발 진행중, Q3에 1차 출시 예정"
+    },
+    {
+        "id": 2,
+        "project": "모바일 앱 v2",
+        "period": "2025",
+        "investmentCost": 150000000,
+        "operatingCost": 30000000,
+        "expectedRevenue": 400000000,
+        "actualRevenue": 250000000,
+        "costSaving": 50000000,
+        "status": "positive",
+        "owner": "박매니저",
+        "notes": "출시 후 매출 목표 초과 달성 중"
+    },
+    {
+        "id": 3,
+        "project": "API Gateway",
+        "period": "2024",
+        "investmentCost": 100000000,
+        "operatingCost": 20000000,
+        "expectedRevenue": 200000000,
+        "actualRevenue": 80000000,
+        "costSaving": 150000000,
+        "status": "positive",
+        "owner": "최아키",
+        "notes": "인프라 비용 절감 효과 큼"
+    },
+    {
+        "id": 4,
+        "project": "CI/CD 파이프라인",
+        "period": "2025",
+        "investmentCost": 80000000,
+        "operatingCost": 15000000,
+        "expectedRevenue": 50000000,
+        "actualRevenue": 10000000,
+        "costSaving": 60000000,
+        "status": "tracking",
+        "owner": "정데옵",
+        "notes": "운영 자동화 비용 절감 추적 중"
+    },
+    {
+        "id": 5,
+        "project": "데이터 분석 플랫폼",
+        "period": "2025",
+        "investmentCost": 200000000,
+        "operatingCost": 40000000,
+        "expectedRevenue": 350000000,
+        "actualRevenue": 0,
+        "costSaving": 0,
+        "status": "planning",
+        "owner": "이분석",
+        "notes": "아직 개발 전, 기대 효과 산출 완료"
+    }
+]

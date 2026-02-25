@@ -1,0 +1,93 @@
+[
+    {
+        "id": 1,
+        "title": "사용자 인증 시스템 강화",
+        "description": "SSO 및 MFA 도입",
+        "category": "feature",
+        "status": "done",
+        "priority": "critical",
+        "project": "ALM 시스템",
+        "owner": "김보안",
+        "quarter": "2025-Q1",
+        "startDate": "2025-01-15",
+        "endDate": "2025-03-20"
+    },
+    {
+        "id": 2,
+        "title": "대시보드 리뉴얼",
+        "description": "실시간 지표 대시보드 재설계",
+        "category": "improvement",
+        "status": "in-progress",
+        "priority": "high",
+        "project": "ALM 시스템",
+        "owner": "박디자",
+        "quarter": "2025-Q1",
+        "startDate": "2025-02-01",
+        "endDate": "2025-04-15"
+    },
+    {
+        "id": 3,
+        "title": "API 성능 최적화",
+        "description": "응답 시간 50% 개선",
+        "category": "tech-debt",
+        "status": "in-progress",
+        "priority": "high",
+        "project": "API Gateway",
+        "owner": "최백엔",
+        "quarter": "2025-Q2",
+        "startDate": "2025-04-01",
+        "endDate": "2025-06-30"
+    },
+    {
+        "id": 4,
+        "title": "모바일 앱 출시",
+        "description": "iOS/Android 네이티브 앱",
+        "category": "feature",
+        "status": "planned",
+        "priority": "critical",
+        "project": "모바일 앱 v2",
+        "owner": "이모바",
+        "quarter": "2025-Q2",
+        "startDate": "2025-04-15",
+        "endDate": "2025-07-31"
+    },
+    {
+        "id": 5,
+        "title": "CI/CD 자동화 확장",
+        "description": "Kubernetes 기반 배포 자동화",
+        "category": "infrastructure",
+        "status": "planned",
+        "priority": "medium",
+        "project": "CI/CD 파이프라인",
+        "owner": "정데옵",
+        "quarter": "2025-Q3",
+        "startDate": "2025-07-01",
+        "endDate": "2025-09-30"
+    },
+    {
+        "id": 6,
+        "title": "AI 기반 코드 리뷰",
+        "description": "AI 코드 리뷰 어시스턴트 연구",
+        "category": "research",
+        "status": "planned",
+        "priority": "low",
+        "project": "ALM 시스템",
+        "owner": "강리서",
+        "quarter": "2025-Q3",
+        "startDate": "2025-08-01",
+        "endDate": "2025-10-31"
+    },
+    {
+        "id": 7,
+        "title": "마이크로서비스 전환",
+        "description": "모놀리스에서 MSA로 전환",
+        "category": "infrastructure",
+        "status": "planned",
+        "priority": "high",
+        "project": "ALM 시스템",
+        "owner": "최아키",
+        "quarter": "2025-Q4",
+        "startDate": "2025-10-01",
+        "endDate": "2026-03-31"
+    }
+]

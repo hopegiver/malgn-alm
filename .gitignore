@@ -1,0 +1,10 @@
+.claude/settings.local.json
+.vscode
+.DS_Store
+.idea
+.env
+*.log
+
+# 프로젝트에서 AI 문서를 git에서 제외하려면 아래 주석 해제 후 실행:
+# git rm --cached -r docs/
+# docs/

@@ -1,0 +1,311 @@
+<div class="app-layout">
+    <!-- Header -->
+    <header class="app-header">
+        <!-- 왼쪽: 햄버거 버튼 + 타이틀 -->
+        <div class="header-side d-flex align-items-center gap-2">
+            <button class="header-hamburger" @click="toggleSidebar">
+                <i class="bi bi-list"></i>
+            </button>
+            <div class="d-flex align-items-center fs-5 fw-semibold text-nowrap">
+                <span>{{ appName }}</span>
+            </div>
+        </div>
+
+        <!-- 중앙: 검색박스 -->
+        <div class="header-search">
+            <i class="bi bi-search"></i>
+            <input type="text" placeholder="메뉴 및 매뉴얼 검색..." v-model="searchQuery" @keyup.enter="handleSearch">
+        </div>
+
+        <!-- 오른쪽: 업로드 + 알림 + 사용자 -->
+        <div class="header-side d-flex align-items-center gap-2 justify-content-end">
+
+            <!-- 알림 -->
+            <button class="header-action" @click="toggleNotifications">
+                <i class="bi bi-bell"></i>
+                <span class="badge" v-if="notificationCount > 0">{{ notificationCount }}</span>
+            </button>
+
+            <!-- 사용자 메뉴 -->
+            <div class="user-menu" @click="toggleUserMenu">
+                <div class="user-avatar">{{ userInitial }}</div>
+                <div class="user-info">
+                    <div class="user-name">{{ userName }}</div>
+                    <div class="user-role">{{ userRole }}</div>
+                </div>
+                <i class="bi bi-chevron-down" style="color: var(--gray-500);"></i>
+
+                <!-- 드롭다운 메뉴 -->
+                <div class="user-dropdown" v-show="showUserMenu">
+                    <div class="d-flex align-items-center gap-3 p-3">
+                        <div class="user-avatar">{{ userInitial }}</div>
+                        <div>
+                            <div class="user-name">{{ userName }}</div>
+                            <div class="user-role">{{ userRole }}</div>
+                        </div>
+                    </div>
+                    <hr class="m-0">
+                    <a href="#/settings/account" class="user-dropdown-item" @click.stop="goToAccount">
+                        <i class="bi bi-person"></i>
+                        <span>계정 설정</span>
+                    </a>
+                    <a href="#/settings/api" class="user-dropdown-item" @click.stop="goToAPISettings">
+                        <i class="bi bi-key"></i>
+                        <span>API 키</span>
+                    </a>
+                    <hr class="m-0">
+                    <button class="user-dropdown-item text-danger" @click.stop="handleLogout">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>로그아웃</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Body Container -->
+    <div class="app-body">
+        <!-- Sidebar Overlay (모바일) -->
+        <div class="sidebar-overlay" :class="{ 'show': isMobile && sidebarVisible }" @click="closeSidebar"></div>
+
+        <!-- Sidebar -->
+        <aside class="app-sidebar" :class="{ 'show': sidebarVisible }">
+            <nav class="py-3">
+                <!-- 대시보드 -->
+                <div class="mx-2 my-1">
+                    <a href="#/home" class="nav-link" :class="{ active: isActive('/home') }" @click="closeSidebar">
+                        <i class="bi bi-speedometer2"></i>
+                        <span class="nav-label">대시보드</span>
+                    </a>
+                </div>
+
+                <!-- ① Portfolio -->
+                <div class="mx-2 my-1">
+                    <div class="accordion-header" :class="{ active: isAccordionOpen('portfolio') }" @click="toggleAccordion('portfolio')">
+                        <i class="bi bi-briefcase icon"></i>
+                        <span>Portfolio</span>
+                        <i class="bi bi-chevron-down chevron"></i>
+                    </div>
+                    <div class="accordion-content" :class="{ open: isAccordionOpen('portfolio') }">
+                        <a href="#/portfolio/projects" class="nav-link" :class="{ active: isActive('/portfolio/projects') }" @click="closeSidebar">
+                            <span class="nav-label">제품/프로젝트 목록</span>
+                        </a>
+                        <a href="#/portfolio/okr" class="nav-link" :class="{ active: isActive('/portfolio/okr') }" @click="closeSidebar">
+                            <span class="nav-label">전략 목표 (OKR)</span>
+                        </a>
+                        <a href="#/portfolio/roadmap" class="nav-link" :class="{ active: isActive('/portfolio/roadmap') }" @click="closeSidebar">
+                            <span class="nav-label">로드맵</span>
+                        </a>
+                        <a href="#/portfolio/roi" class="nav-link" :class="{ active: isActive('/portfolio/roi') }" @click="closeSidebar">
+                            <span class="nav-label">투자 대비 성과</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- ② Requirements -->
+                <div class="mx-2 my-1">
+                    <div class="accordion-header" :class="{ active: isAccordionOpen('requirements') }" @click="toggleAccordion('requirements')">
+                        <i class="bi bi-file-earmark-text icon"></i>
+                        <span>Requirements</span>
+                        <i class="bi bi-chevron-down chevron"></i>
+                    </div>
+                    <div class="accordion-content" :class="{ open: isAccordionOpen('requirements') }">
+                        <a href="#/requirements/register" class="nav-link" :class="{ active: isActive('/requirements/register') }" @click="closeSidebar">
+                            <span class="nav-label">요구사항 등록</span>
+                        </a>
+                        <a href="#/requirements/specs" class="nav-link" :class="{ active: isActive('/requirements/specs') }" @click="closeSidebar">
+                            <span class="nav-label">기능 명세</span>
+                        </a>
+                        <a href="#/requirements/change-requests" class="nav-link" :class="{ active: isActive('/requirements/change-requests') }" @click="closeSidebar">
+                            <span class="nav-label">변경 요청 (CR)</span>
+                        </a>
+                        <a href="#/requirements/approvals" class="nav-link" :class="{ active: isActive('/requirements/approvals') }" @click="closeSidebar">
+                            <span class="nav-label">승인 워크플로우</span>
+                        </a>
+                        <a href="#/requirements/traceability" class="nav-link" :class="{ active: isActive('/requirements/traceability') }" @click="closeSidebar">
+                            <span class="nav-label">추적 매트릭스</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- ③ Planning -->
+                <div class="mx-2 my-1">
+                    <div class="accordion-header" :class="{ active: isAccordionOpen('planning') }" @click="toggleAccordion('planning')">
+                        <i class="bi bi-calendar3 icon"></i>
+                        <span>Planning</span>
+                        <i class="bi bi-chevron-down chevron"></i>
+                    </div>
+                    <div class="accordion-content" :class="{ open: isAccordionOpen('planning') }">
+                        <a href="#/planning/sprints" class="nav-link" :class="{ active: isActive('/planning/sprints') }" @click="closeSidebar">
+                            <span class="nav-label">스프린트 계획</span>
+                        </a>
+                        <a href="#/planning/backlog" class="nav-link" :class="{ active: isActive('/planning/backlog') }" @click="closeSidebar">
+                            <span class="nav-label">백로그</span>
+                        </a>
+                        <a href="#/planning/milestones" class="nav-link" :class="{ active: isActive('/planning/milestones') }" @click="closeSidebar">
+                            <span class="nav-label">마일스톤</span>
+                        </a>
+                        <a href="#/planning/resources" class="nav-link" :class="{ active: isActive('/planning/resources') }" @click="closeSidebar">
+                            <span class="nav-label">리소스 할당</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- ④ Development -->
+                <div class="mx-2 my-1">
+                    <div class="accordion-header" :class="{ active: isAccordionOpen('development') }" @click="toggleAccordion('development')">
+                        <i class="bi bi-code-slash icon"></i>
+                        <span>Development</span>
+                        <i class="bi bi-chevron-down chevron"></i>
+                    </div>
+                    <div class="accordion-content" :class="{ open: isAccordionOpen('development') }">
+                        <a href="#/development/issues" class="nav-link" :class="{ active: isActive('/development/issues') }" @click="closeSidebar">
+                            <span class="nav-label">이슈 관리</span>
+                        </a>
+                        <a href="#/development/branches" class="nav-link" :class="{ active: isActive('/development/branches') }" @click="closeSidebar">
+                            <span class="nav-label">브랜치 전략</span>
+                        </a>
+                        <a href="#/development/reviews" class="nav-link" :class="{ active: isActive('/development/reviews') }" @click="closeSidebar">
+                            <span class="nav-label">코드 리뷰</span>
+                        </a>
+                        <a href="#/development/builds" class="nav-link" :class="{ active: isActive('/development/builds') }" @click="closeSidebar">
+                            <span class="nav-label">빌드 상태</span>
+                        </a>
+                        <a href="#/development/commits" class="nav-link" :class="{ active: isActive('/development/commits') }" @click="closeSidebar">
+                            <span class="nav-label">커밋 추적</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- ⑤ Testing -->
+                <div class="mx-2 my-1">
+                    <div class="accordion-header" :class="{ active: isAccordionOpen('testing') }" @click="toggleAccordion('testing')">
+                        <i class="bi bi-bug icon"></i>
+                        <span>Testing</span>
+                        <i class="bi bi-chevron-down chevron"></i>
+                    </div>
+                    <div class="accordion-content" :class="{ open: isAccordionOpen('testing') }">
+                        <a href="#/testing/cases" class="nav-link" :class="{ active: isActive('/testing/cases') }" @click="closeSidebar">
+                            <span class="nav-label">테스트 케이스</span>
+                        </a>
+                        <a href="#/testing/automation" class="nav-link" :class="{ active: isActive('/testing/automation') }" @click="closeSidebar">
+                            <span class="nav-label">자동 테스트 결과</span>
+                        </a>
+                        <a href="#/testing/coverage" class="nav-link" :class="{ active: isActive('/testing/coverage') }" @click="closeSidebar">
+                            <span class="nav-label">테스트 커버리지</span>
+                        </a>
+                        <a href="#/testing/bugs" class="nav-link" :class="{ active: isActive('/testing/bugs') }" @click="closeSidebar">
+                            <span class="nav-label">버그 관리</span>
+                        </a>
+                        <a href="#/testing/qa-approval" class="nav-link" :class="{ active: isActive('/testing/qa-approval') }" @click="closeSidebar">
+                            <span class="nav-label">QA 승인</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- ⑥ Release -->
+                <div class="mx-2 my-1">
+                    <div class="accordion-header" :class="{ active: isAccordionOpen('release') }" @click="toggleAccordion('release')">
+                        <i class="bi bi-rocket-takeoff icon"></i>
+                        <span>Release</span>
+                        <i class="bi bi-chevron-down chevron"></i>
+                    </div>
+                    <div class="accordion-content" :class="{ open: isAccordionOpen('release') }">
+                        <a href="#/release/versions" class="nav-link" :class="{ active: isActive('/release/versions') }" @click="closeSidebar">
+                            <span class="nav-label">릴리즈 버전 관리</span>
+                        </a>
+                        <a href="#/release/history" class="nav-link" :class="{ active: isActive('/release/history') }" @click="closeSidebar">
+                            <span class="nav-label">배포 이력</span>
+                        </a>
+                        <a href="#/release/environments" class="nav-link" :class="{ active: isActive('/release/environments') }" @click="closeSidebar">
+                            <span class="nav-label">환경별 배포 상태</span>
+                        </a>
+                        <a href="#/release/rollbacks" class="nav-link" :class="{ active: isActive('/release/rollbacks') }" @click="closeSidebar">
+                            <span class="nav-label">롤백 관리</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- ⑦ Operations -->
+                <div class="mx-2 my-1">
+                    <div class="accordion-header" :class="{ active: isAccordionOpen('operations') }" @click="toggleAccordion('operations')">
+                        <i class="bi bi-activity icon"></i>
+                        <span>Operations</span>
+                        <i class="bi bi-chevron-down chevron"></i>
+                    </div>
+                    <div class="accordion-content" :class="{ open: isAccordionOpen('operations') }">
+                        <a href="#/operations/incidents" class="nav-link" :class="{ active: isActive('/operations/incidents') }" @click="closeSidebar">
+                            <span class="nav-label">장애 관리</span>
+                        </a>
+                        <a href="#/operations/logs" class="nav-link" :class="{ active: isActive('/operations/logs') }" @click="closeSidebar">
+                            <span class="nav-label">로그 분석</span>
+                        </a>
+                        <a href="#/operations/monitoring" class="nav-link" :class="{ active: isActive('/operations/monitoring') }" @click="closeSidebar">
+                            <span class="nav-label">모니터링</span>
+                        </a>
+                        <a href="#/operations/sla" class="nav-link" :class="{ active: isActive('/operations/sla') }" @click="closeSidebar">
+                            <span class="nav-label">SLA 관리</span>
+                        </a>
+                        <a href="#/operations/feedback" class="nav-link" :class="{ active: isActive('/operations/feedback') }" @click="closeSidebar">
+                            <span class="nav-label">고객 피드백</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- ⑧ Analytics -->
+                <div class="mx-2 my-1">
+                    <div class="accordion-header" :class="{ active: isAccordionOpen('analytics') }" @click="toggleAccordion('analytics')">
+                        <i class="bi bi-graph-up icon"></i>
+                        <span>Analytics</span>
+                        <i class="bi bi-chevron-down chevron"></i>
+                    </div>
+                    <div class="accordion-content" :class="{ open: isAccordionOpen('analytics') }">
+                        <a href="#/analytics/productivity" class="nav-link" :class="{ active: isActive('/analytics/productivity') }" @click="closeSidebar">
+                            <span class="nav-label">생산성 지표</span>
+                        </a>
+                        <a href="#/analytics/defect-density" class="nav-link" :class="{ active: isActive('/analytics/defect-density') }" @click="closeSidebar">
+                            <span class="nav-label">결함 밀도</span>
+                        </a>
+                        <a href="#/analytics/lead-time" class="nav-link" :class="{ active: isActive('/analytics/lead-time') }" @click="closeSidebar">
+                            <span class="nav-label">리드 타임</span>
+                        </a>
+                        <a href="#/analytics/deploy-frequency" class="nav-link" :class="{ active: isActive('/analytics/deploy-frequency') }" @click="closeSidebar">
+                            <span class="nav-label">배포 빈도</span>
+                        </a>
+                        <a href="#/analytics/mttr" class="nav-link" :class="{ active: isActive('/analytics/mttr') }" @click="closeSidebar">
+                            <span class="nav-label">MTTR</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- ⑨ Governance -->
+                <div class="mx-2 my-1">
+                    <div class="accordion-header" :class="{ active: isAccordionOpen('governance') }" @click="toggleAccordion('governance')">
+                        <i class="bi bi-shield-lock icon"></i>
+                        <span>Governance</span>
+                        <i class="bi bi-chevron-down chevron"></i>
+                    </div>
+                    <div class="accordion-content" :class="{ open: isAccordionOpen('governance') }">
+                        <a href="#/governance/permissions" class="nav-link" :class="{ active: isActive('/governance/permissions') }" @click="closeSidebar">
+                            <span class="nav-label">권한 관리</span>
+                        </a>
+                        <a href="#/governance/audit-logs" class="nav-link" :class="{ active: isActive('/governance/audit-logs') }" @click="closeSidebar">
+                            <span class="nav-label">감사 로그</span>
+                        </a>
+                        <a href="#/governance/policies" class="nav-link" :class="{ active: isActive('/governance/policies') }" @click="closeSidebar">
+                            <span class="nav-label">정책 관리</span>
+                        </a>
+                        <a href="#/governance/security" class="nav-link" :class="{ active: isActive('/governance/security') }" @click="closeSidebar">
+                            <span class="nav-label">보안 이슈</span>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            {{ content }}
+        </main>
+    </div>
+</div>

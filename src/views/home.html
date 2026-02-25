@@ -1,0 +1,253 @@
+<div class="container-fluid p-4">
+    <!-- 페이지 헤더 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">대시보드</h2>
+            <p class="text-secondary mb-0">프로젝트 현황을 한눈에 확인하세요</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary" @click="goToIssues">
+                <i class="bi bi-plus-lg me-1"></i>
+                이슈 생성
+            </button>
+            <button class="btn btn-primary" @click="goToSprint">
+                <i class="bi bi-kanban me-1"></i>
+                스프린트 보드
+            </button>
+        </div>
+    </div>
+
+    <!-- 주요 지표 카드 -->
+    <div class="row g-3 mb-4">
+        <!-- 활성 프로젝트 -->
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-secondary mb-1">활성 프로젝트</p>
+                            <h3 class="mb-0">{{ stats.activeProjects }}</h3>
+                            <small class="text-secondary">
+                                전체 {{ stats.totalProjects }}개 중
+                            </small>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center rounded-3 p-3 bg-primary-subtle text-primary">
+                            <i class="bi bi-briefcase fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 미해결 이슈 -->
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-secondary mb-1">미해결 이슈</p>
+                            <h3 class="mb-0">{{ stats.openIssues }}</h3>
+                            <small :class="getChangeClass(stats.issuesChange, true)">
+                                <i :class="getChangeIcon(stats.issuesChange, true)"></i>
+                                {{ Math.abs(stats.issuesChange) }}% 전주 대비
+                            </small>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center rounded-3 p-3 bg-warning-subtle text-warning">
+                            <i class="bi bi-exclamation-circle fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 스프린트 진행률 -->
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <p class="text-secondary mb-1">스프린트 진행률</p>
+                            <h3 class="mb-0">{{ stats.sprintProgress }}%</h3>
+                            <small class="text-secondary">{{ stats.sprintName }}</small>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center rounded-3 p-3 bg-success-subtle text-success">
+                            <i class="bi bi-lightning fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-success" :style="{ width: stats.sprintProgress + '%' }"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 이번 주 배포 -->
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-secondary mb-1">이번 주 배포</p>
+                            <h3 class="mb-0">{{ stats.weeklyDeploys }}</h3>
+                            <small class="text-success">
+                                <i class="bi bi-check-circle"></i>
+                                성공률 {{ stats.deploySuccessRate }}%
+                            </small>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center rounded-3 p-3 bg-info-subtle text-info">
+                            <i class="bi bi-rocket-takeoff fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 스프린트 현황 + 최근 활동 -->
+    <div class="row g-3 mb-4">
+        <!-- 스프린트 현황 -->
+        <div class="col-12 col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">스프린트 현황</h5>
+                    <a href="#/planning/sprints" class="text-primary text-decoration-none">
+                        전체보기 <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="card-body">
+                    <!-- 태스크 상태 요약 -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-3">
+                            <div class="text-center p-3 bg-light rounded-3">
+                                <div class="fs-3 fw-bold text-secondary">{{ sprint.todo }}</div>
+                                <div class="text-secondary small">대기</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="text-center p-3 bg-light rounded-3">
+                                <div class="fs-3 fw-bold text-primary">{{ sprint.inProgress }}</div>
+                                <div class="text-secondary small">진행 중</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="text-center p-3 bg-light rounded-3">
+                                <div class="fs-3 fw-bold text-warning">{{ sprint.inReview }}</div>
+                                <div class="text-secondary small">리뷰</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="text-center p-3 bg-light rounded-3">
+                                <div class="fs-3 fw-bold text-success">{{ sprint.done }}</div>
+                                <div class="text-secondary small">완료</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 진행 중인 이슈 목록 -->
+                    <div v-if="sprint.activeIssues.length > 0">
+                        <h6 class="text-secondary mb-3">진행 중인 이슈</h6>
+                        <div v-for="issue in sprint.activeIssues" :key="issue.id" class="d-flex align-items-center gap-3 p-2 rounded-2 mb-2 border">
+                            <span class="badge" :class="getPriorityClass(issue.priority)">{{ issue.priority }}</span>
+                            <span class="badge bg-light text-dark font-monospace">{{ issue.key }}</span>
+                            <span class="flex-grow-1 text-truncate">{{ issue.title }}</span>
+                            <div class="d-flex align-items-center gap-1">
+                                <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center" style="width: 1.75rem; height: 1.75rem; font-size: 0.7rem; font-weight: 600;">
+                                    {{ issue.assigneeInitial }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 최근 활동 -->
+        <div class="col-12 col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">최근 활동</h5>
+                </div>
+                <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
+                    <div v-for="activity in recentActivities" :key="activity.id" class="border-bottom p-3">
+                        <div class="d-flex gap-2">
+                            <i :class="activity.icon" class="mt-1" :style="{ color: activity.color }"></i>
+                            <div class="flex-grow-1">
+                                <div class="small">{{ activity.message }}</div>
+                                <div class="text-secondary" style="font-size: 0.75rem;">{{ activity.time }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 프로젝트 현황 테이블 -->
+    <div class="row g-3">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">프로젝트 현황</h5>
+                    <a href="#/portfolio/projects" class="text-primary text-decoration-none">
+                        전체보기 <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>프로젝트</th>
+                                    <th style="width: 120px;">진행률</th>
+                                    <th style="width: 100px;">미해결 이슈</th>
+                                    <th style="width: 100px;">버그</th>
+                                    <th style="width: 130px;">다음 릴리즈</th>
+                                    <th style="width: 100px;">상태</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="project in projects" :key="project.id" class="cursor-pointer" @click="goToProject(project.id)">
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="rounded-2 d-flex align-items-center justify-content-center" :style="{ background: project.color, width: '2.25rem', height: '2.25rem', color: 'white', fontWeight: 600, fontSize: '0.8rem' }">
+                                                {{ project.initial }}
+                                            </div>
+                                            <div>
+                                                <div class="fw-medium">{{ project.name }}</div>
+                                                <small class="text-secondary">{{ project.team }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="flex-grow-1">
+                                                <div class="progress" style="height: 6px;">
+                                                    <div class="progress-bar" :class="getProgressClass(project.progress)" :style="{ width: project.progress + '%' }"></div>
+                                                </div>
+                                            </div>
+                                            <small class="text-nowrap">{{ project.progress }}%</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="fw-medium">{{ project.openIssues }}</span>
+                                    </td>
+                                    <td>
+                                        <span :class="project.bugs > 5 ? 'text-danger fw-medium' : ''">{{ project.bugs }}</span>
+                                    </td>
+                                    <td>
+                                        <small>{{ project.nextRelease }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge" :class="getProjectStatusClass(project.status)">
+                                            {{ project.status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

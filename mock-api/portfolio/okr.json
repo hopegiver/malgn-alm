@@ -1,0 +1,39 @@
+[
+    {
+        "id": 1,
+        "objective": "고객 만족도 향상",
+        "quarter": "2025-Q1",
+        "year": 2025,
+        "owner": "김전략",
+        "status": "active",
+        "keyResults": [
+            { "id": 101, "title": "NPS 점수 개선", "metric": "NPS", "startValue": 30, "targetValue": 50, "currentValue": 42, "unit": "점" },
+            { "id": 102, "title": "고객 응답 시간 단축", "metric": "응답 시간", "startValue": 48, "targetValue": 12, "currentValue": 24, "unit": "시간" },
+            { "id": 103, "title": "고객 이탈률 감소", "metric": "이탈률", "startValue": 15, "targetValue": 5, "currentValue": 9, "unit": "%" }
+        ]
+    },
+    {
+        "id": 2,
+        "objective": "제품 품질 개선",
+        "quarter": "2025-Q1",
+        "year": 2025,
+        "owner": "박품질",
+        "status": "active",
+        "keyResults": [
+            { "id": 201, "title": "릴리즈 결함 밀도 감소", "metric": "결함 밀도", "startValue": 5.0, "targetValue": 1.0, "currentValue": 2.5, "unit": "건/KLOC" },
+            { "id": 202, "title": "테스트 커버리지 향상", "metric": "커버리지", "startValue": 60, "targetValue": 90, "currentValue": 78, "unit": "%" }
+        ]
+    },
+    {
+        "id": 3,
+        "objective": "개발 생산성 극대화",
+        "quarter": "2025-Q2",
+        "year": 2025,
+        "owner": "이개발",
+        "status": "draft",
+        "keyResults": [
+            { "id": 301, "title": "배포 빈도 향상", "metric": "배포 횟수", "startValue": 2, "targetValue": 10, "currentValue": 2, "unit": "회/주" },
+            { "id": 302, "title": "리드 타임 단축", "metric": "리드 타임", "startValue": 14, "targetValue": 3, "currentValue": 14, "unit": "일" }
+        ]
+    }
+]

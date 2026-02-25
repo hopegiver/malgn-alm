@@ -1,0 +1,236 @@
+<div class="container-fluid py-4 px-4">
+    <!-- 헤더 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-1">{{ title }}</h4>
+            <p class="text-secondary mb-0">{{ description }}</p>
+        </div>
+        <button class="btn btn-primary d-flex align-items-center gap-2" @click="openCreateModal">
+            <i class="bi bi-plus-lg"></i>
+            <span>새 항목</span>
+        </button>
+    </div>
+
+    <!-- 요약 카드 -->
+    <div v-if="!loading && filteredItems.length > 0" class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body text-center py-3">
+                    <small class="text-secondary d-block mb-1">총 투자비용</small>
+                    <div class="fs-5 fw-bold text-danger">{{ formatCurrency(summaryStats.totalInvestment) }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body text-center py-3">
+                    <small class="text-secondary d-block mb-1">실현 성과</small>
+                    <div class="fs-5 fw-bold text-success">{{ formatCurrency(summaryStats.totalRevenue) }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body text-center py-3">
+                    <small class="text-secondary d-block mb-1">기대 성과</small>
+                    <div class="fs-5 fw-bold text-primary">{{ formatCurrency(summaryStats.totalExpected) }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body text-center py-3">
+                    <small class="text-secondary d-block mb-1">평균 ROI</small>
+                    <div class="fs-5 fw-bold" :class="getRoiColor(summaryStats.avgRoi)">{{ summaryStats.avgRoi.toFixed(1) }}%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 필터 바 -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body py-3">
+            <div class="row g-3 align-items-center">
+                <div class="col-12 col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input v-model="keyword" type="text" class="form-control" placeholder="프로젝트명, 담당자 검색...">
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <select v-model="periodFilter" class="form-select">
+                        <option value="">전체 기간</option>
+                        <option v-for="opt in periodOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-4 text-end">
+                    <span class="text-secondary">총 <strong>{{ filteredItems.length }}</strong>건</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 로딩 -->
+    <div v-if="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- 빈 상태 -->
+    <div v-else-if="filteredItems.length === 0" class="card shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-currency-dollar fs-1 text-secondary"></i>
+            <p class="text-secondary mt-3 mb-0">등록된 ROI 데이터가 없습니다.</p>
+        </div>
+    </div>
+
+    <!-- ROI 테이블 -->
+    <div v-else class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>프로젝트</th>
+                        <th style="width: 80px;">기간</th>
+                        <th style="width: 80px;">상태</th>
+                        <th style="width: 110px;" class="text-end">투자비용</th>
+                        <th style="width: 110px;" class="text-end">운영비용</th>
+                        <th style="width: 110px;" class="text-end">기대 성과</th>
+                        <th style="width: 110px;" class="text-end">실현 매출</th>
+                        <th style="width: 110px;" class="text-end">비용절감</th>
+                        <th style="width: 80px;" class="text-end">ROI</th>
+                        <th style="width: 90px;" class="text-end">달성률</th>
+                        <th style="width: 100px;">관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in filteredItems" :key="item.id">
+                        <td>
+                            <div class="fw-semibold">{{ item.project }}</div>
+                            <small class="text-secondary">{{ item.owner }}</small>
+                        </td>
+                        <td><span class="badge bg-light text-dark">{{ item.period }}</span></td>
+                        <td><span class="badge" :class="getStatusBadge(item.status)">{{ getStatusLabel(item.status) }}</span></td>
+                        <td class="text-end">{{ formatCurrency(item.investmentCost) }}</td>
+                        <td class="text-end">{{ formatCurrency(item.operatingCost) }}</td>
+                        <td class="text-end text-primary">{{ formatCurrency(item.expectedRevenue) }}</td>
+                        <td class="text-end text-success">{{ formatCurrency(item.actualRevenue) }}</td>
+                        <td class="text-end text-info">{{ formatCurrency(item.costSaving) }}</td>
+                        <td class="text-end fw-bold" :class="getRoiColor(calcRoi(item))">{{ calcRoi(item) }}%</td>
+                        <td class="text-end">
+                            <div class="d-flex align-items-center justify-content-end gap-1">
+                                <div class="progress" style="width: 50px; height: 6px;">
+                                    <div class="progress-bar" :class="calcAchievementRate(item) >= 70 ? 'bg-success' : 'bg-warning'" :style="{ width: Math.min(100, calcAchievementRate(item)) + '%' }"></div>
+                                </div>
+                                <small>{{ calcAchievementRate(item) }}%</small>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <button class="btn btn-sm btn-outline-primary" @click="openEditModal(item)" title="수정">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" @click="deleteItem(item)" title="삭제">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot class="table-light">
+                    <tr class="fw-bold">
+                        <td colspan="3">합계</td>
+                        <td class="text-end">{{ formatCurrency(filteredItems.reduce((s, i) => s + i.investmentCost, 0)) }}</td>
+                        <td class="text-end">{{ formatCurrency(filteredItems.reduce((s, i) => s + i.operatingCost, 0)) }}</td>
+                        <td class="text-end text-primary">{{ formatCurrency(filteredItems.reduce((s, i) => s + i.expectedRevenue, 0)) }}</td>
+                        <td class="text-end text-success">{{ formatCurrency(filteredItems.reduce((s, i) => s + i.actualRevenue, 0)) }}</td>
+                        <td class="text-end text-info">{{ formatCurrency(filteredItems.reduce((s, i) => s + i.costSaving, 0)) }}</td>
+                        <td class="text-end" :class="getRoiColor(summaryStats.avgRoi)">{{ summaryStats.avgRoi.toFixed(1) }}%</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- 생성/수정 모달 -->
+    <div class="modal fade" id="roiModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ isEdit ? 'ROI 수정' : '새 ROI 항목' }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form @submit.prevent="handleSubmit">
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-5">
+                                <label class="form-label">프로젝트명 <span class="text-danger">*</span></label>
+                                <input v-model="form.project" type="text" class="form-control" :class="{ 'is-invalid': errors.project }">
+                                <div v-if="errors.project" class="invalid-feedback">{{ errors.project }}</div>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label class="form-label">기간 <span class="text-danger">*</span></label>
+                                <select v-model="form.period" class="form-select" :class="{ 'is-invalid': errors.period }">
+                                    <option v-for="opt in periodOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+                                </select>
+                                <div v-if="errors.period" class="invalid-feedback">{{ errors.period }}</div>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label">담당자 <span class="text-danger">*</span></label>
+                                <input v-model="form.owner" type="text" class="form-control" :class="{ 'is-invalid': errors.owner }">
+                                <div v-if="errors.owner" class="invalid-feedback">{{ errors.owner }}</div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">상태</label>
+                                <select v-model="form.status" class="form-select">
+                                    <option v-for="opt in statusOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <hr class="my-1">
+                                <small class="text-secondary fw-semibold">투자 비용</small>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">투자비용 (원)</label>
+                                <input v-model.number="form.investmentCost" type="number" class="form-control" min="0">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">운영비용 (원)</label>
+                                <input v-model.number="form.operatingCost" type="number" class="form-control" min="0">
+                            </div>
+                            <div class="col-12">
+                                <hr class="my-1">
+                                <small class="text-secondary fw-semibold">성과</small>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label">기대 성과 (원)</label>
+                                <input v-model.number="form.expectedRevenue" type="number" class="form-control" min="0">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label">실현 매출 (원)</label>
+                                <input v-model.number="form.actualRevenue" type="number" class="form-control" min="0">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label">비용 절감 (원)</label>
+                                <input v-model.number="form.costSaving" type="number" class="form-control" min="0">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">비고</label>
+                                <textarea v-model="form.notes" class="form-control" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">취소</button>
+                        <button type="submit" class="btn btn-primary" :disabled="isLoading">
+                            {{ isLoading ? '저장 중...' : (isEdit ? '수정' : '등록') }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

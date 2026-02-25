@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>맑은소프트 ALM</title>
+    <meta name="description" content="소프트웨어 개발 생명주기 통합 관리 플랫폼">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <!-- Noto Sans KR 폰트 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/base.css">
+</head>
+<body>
+    <!-- 앱 컨테이너 -->
+    <div id="app"></div>
+
+    <!-- Bootstrap 5 JS Bundle (Popper 포함) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <!-- Chart.js for analytics charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- ViewLogic Router -->
+    <script src="https://cdn.jsdelivr.net/npm/viewlogic@latest/dist/viewlogic-router.min.js"></script>
+
+    <script>
+        // ViewLogic Router 초기화
+        const router = new ViewLogicRouter({
+            basePath: '/',
+            srcPath: '/src',
+            mode: 'hash',
+            useAuth: false, // 개발 시 false로 설정, 배포 시 true로 변경
+            authCheck: () => {
+                const token = localStorage.getItem('auth_token');
+                return !!token;
+            },
+            authRedirect: '/login'
+        });
+
+        // 전역 설정
+        window.APP_NAME = 'Malgnsoft ALM';
+        window.APP_VERSION = '1.0.0';
+
+        // 사용자 역할 정의
+        window.USER_ROLES = {
+            ADMIN: 'ADMIN',           // 시스템 관리자
+            PM: 'PM',                 // 프로젝트 매니저
+            DEVELOPER: 'DEVELOPER',   // 개발자
+            QA: 'QA',                 // QA 엔지니어
+            VIEWER: 'VIEWER'          // 뷰어 (읽기 전용)
+        };
+
+        // 현재 사용자 정보 가져오기
+        window.getCurrentUser = () => {
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                // 개발용 기본 사용자
+                return {
+                    id: 1,
+                    name: '관리자',
+                    email: 'admin@malgnsoft.com',
+                    role: window.USER_ROLES.ADMIN,
+                    avatar: null
+                };
+            }
+            return JSON.parse(userStr);
+        };
+
+        // 사용자 역할 확인
+        window.hasRole = (role) => {
+            const user = window.getCurrentUser();
+            return user && user.role === role;
+        };
+
+        // 관리자 권한 확인
+        window.isAdmin = () => {
+            return window.hasRole(window.USER_ROLES.ADMIN);
+        };
+
+        // 편집 권한 확인 (관리자 + PM + 개발자)
+        window.canEdit = () => {
+            const user = window.getCurrentUser();
+            return user && (user.role === window.USER_ROLES.ADMIN ||
+                          user.role === window.USER_ROLES.PM ||
+                          user.role === window.USER_ROLES.DEVELOPER);
+        };
+
+        // 분석 권한 확인 (모든 역할)
+        window.canViewAnalytics = () => {
+            return !!window.getCurrentUser();
+        };
+
+        // API 헬퍼 (선택사항)
+        window.API_BASE_URL = '/api'; // 실제 API 서버 주소로 변경
+
+        // 간단한 로그아웃 함수
+        window.logout = () => {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user');
+            window.location.hash = '#/login';
+        };
+
+        // 개발 모드 플래그
+        window.DEV_MODE = true;
+
+        console.log('%c📋 Malgnsoft ALM', 'font-size: 20px; font-weight: bold; color: #6366f1;');
+        console.log('%cALM 시스템이 실행되었습니다.', 'color: #10b981;');
+        console.log('Version:', window.APP_VERSION);
+        console.log('User:', window.getCurrentUser().name);
+    </script>
+</body>
+</html>
